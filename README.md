@@ -2,6 +2,23 @@
 
 # Roblox Background & Guarded Attack Macro Suite
 
+## Repository guide
+
+A Windows input-automation prototype built with C#/.NET 10 and WPF. It records/dispatches macros, selects a target window and provides global-hotkey/guarded foreground workflows. Roblox is one intended target; the application is unofficial and is not affiliated with or endorsed by Roblox.
+
+Start with the technical limitations below: a successful Windows message/API call does **not** prove that a game accepted an attack or input, particularly while unfocused/minimised. Do not equate the test target window's behaviour with Roblox gameplay behaviour.
+
+Use Windows and the .NET 10 Windows desktop SDK. Build/run the application from its actual project path:
+
+```powershell
+dotnet build src/RobloxMacro.App/RobloxMacro.App.csproj -c Release
+dotnet run --project src/RobloxMacro.App/RobloxMacro.App.csproj -c Release
+```
+
+The separate proof-of-concept and test projects remain available for controlled checks. `build-and-package.ps1` creates local packages; no compiled `dist` executable is included in this source snapshot. Review target selection, hotkeys and stop behaviour in the supplied test window before trying another application.
+
+`src/RobloxMacro.Core/` holds native input/window and automation services; `src/RobloxMacro.App/` the WPF UI; `src/RobloxMacro.PoC/` the probe; and `tests/` the authored checks. The detailed project paths, commands and limitations follow.
+
 A Windows desktop input automation and macro utility built with **C# 13 / .NET 10 WPF** and documented user-mode **Win32 APIs** (`SendInput`, `PostMessageW`, `SendMessageTimeoutW`, `RegisterHotKey`, `GetDpiForWindow`).
 
 ---
@@ -80,3 +97,8 @@ powershell -ExecutionPolicy Bypass -File .\build-and-package.ps1
 The packaged executables are output to `dist\`:
 - `dist\RobloxMacro.App.exe` (Standalone single-file WPF desktop application)
 - `dist\RobloxMacro.PoC.exe` (Standalone Proof-of-Concept CLI)
+
+
+## Source snapshot and validation
+
+See [BACKUP_NOTES.md](BACKUP_NOTES.md) for the omitted build outputs, local settings, credentials and runtime data. Build generated binaries locally using the instructions above; a source checkout is not an installed application. Earlier validation figures in this guide describe their original development runs. This documentation update checks source references and instructions; it does not claim a fresh application, device or gameplay test.
