@@ -1,0 +1,524 @@
+<Window x:Class="RobloxMacro.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Roblox Background &amp; Guarded Attack Macro Suite"
+        Width="1080" Height="820"
+        MinWidth="920" MinHeight="720"
+        Background="#0B0F19"
+        Foreground="#F8FAFC"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="145"/>
+        </Grid.RowDefinitions>
+
+        <!-- 1. TOP HEADER & LIVE TELEMETRY -->
+        <Grid Grid.Row="0" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="ROBLOX ATTACK MACRO &amp; INPUT SUITE"
+                               FontSize="19" FontWeight="Bold" Foreground="#F8FAFC"/>
+                    <Border Background="#1E293B" CornerRadius="4" Padding="8,2" Margin="12,0,0,0"
+                            BorderBrush="#38BDF8" BorderThickness="1" VerticalAlignment="Center">
+                        <TextBlock x:Name="HotkeySummaryBadge"
+                                   Text="Hotkeys: Start/Stop [F6] | Emergency Stop [F7] | Pick Pos [F8]"
+                                   FontSize="11" FontWeight="SemiBold" Foreground="#38BDF8"/>
+                    </Border>
+                </StackPanel>
+                <TextBlock Text="Win32 Input Engine • Focus-Guarded SendInput &amp; Background PostMessage • DPI-Aware Client Coordinate Tracking"
+                           FontSize="12" Foreground="#94A3B8" Margin="0,2,0,0"/>
+            </StackPanel>
+
+            <UniformGrid Grid.Column="1" Columns="4" Width="560">
+                <Border Background="#151C2C" CornerRadius="6" Padding="10,6" Margin="4,0" BorderBrush="#2E3C56" BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="ENGINE STATE" FontSize="10" FontWeight="Bold" Foreground="#94A3B8"/>
+                        <TextBlock x:Name="StateValueText" Text="IDLE" FontSize="14" FontWeight="Bold" Foreground="#38BDF8" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </Border>
+                <Border Background="#151C2C" CornerRadius="6" Padding="10,6" Margin="4,0" BorderBrush="#2E3C56" BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="CLICKS DISPATCHED" FontSize="10" FontWeight="Bold" Foreground="#94A3B8"/>
+                        <TextBlock x:Name="ClickCountValueText" Text="0" FontSize="14" FontWeight="Bold" Foreground="#10B981" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </Border>
+                <Border Background="#151C2C" CornerRadius="6" Padding="10,6" Margin="4,0" BorderBrush="#2E3C56" BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="ACTIVE RUNTIME" FontSize="10" FontWeight="Bold" Foreground="#94A3B8"/>
+                        <TextBlock x:Name="ElapsedTimeValueText" Text="00:00:00.0" FontSize="14" FontWeight="Bold" Foreground="#F8FAFC" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </Border>
+                <Border Background="#151C2C" CornerRadius="6" Padding="10,6" Margin="4,0,0,0" BorderBrush="#2E3C56" BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="RESOLVED CLIENT XY" FontSize="10" FontWeight="Bold" Foreground="#94A3B8"/>
+                        <TextBlock x:Name="ResolvedCoordsValueText" Text="(0, 0)" FontSize="14" FontWeight="Bold" Foreground="#F59E0B" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+        </Grid>
+
+        <!-- 2. TARGET WINDOW SELECTOR & STATUS -->
+        <Border Grid.Row="1" Background="#151C2C" CornerRadius="8" Padding="12,10" Margin="0,0,0,10"
+                BorderBrush="#2E3C56" BorderThickness="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="Target Window:" VerticalAlignment="Center"
+                               FontWeight="SemiBold" Margin="0,0,10,0"/>
+
+                    <ComboBox Grid.Column="1" x:Name="TargetWindowCombo"
+                              Height="30" VerticalContentAlignment="Center"
+                              SelectionChanged="TargetWindowCombo_SelectionChanged"
+                              DisplayMemberPath="DisplayName"/>
+
+                    <CheckBox Grid.Column="2" x:Name="ShowAllWindowsCheck"
+                              Content="Show All Windows" Margin="10,0"
+                              VerticalAlignment="Center"
+                              Checked="ShowAllWindowsCheck_Changed"
+                              Unchecked="ShowAllWindowsCheck_Changed"/>
+
+                    <Button Grid.Column="3" Content="Refresh Targets" Style="{StaticResource ActionBtn}"
+                            Background="#334155" Margin="0,0,6,0"
+                            Click="RefreshTargets_Click"/>
+
+                    <Button Grid.Column="4" Content="Pick Under Cursor (F8)" Style="{StaticResource ActionBtn}"
+                            Background="#0284C7" Margin="0,0,6,0"
+                            Click="PickWindowUnderCursor_Click"/>
+
+                    <Button Grid.Column="5" Content="Launch Test Target Window" Style="{StaticResource ActionBtn}"
+                            Background="#4F46E5"
+                            Click="LaunchTestTarget_Click"/>
+                </Grid>
+
+                <Grid Grid.Row="1" Margin="0,8,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" x:Name="TargetFocusBadge" Background="#1E293B" CornerRadius="4" Padding="8,3" Margin="0,0,10,0">
+                        <TextBlock x:Name="TargetFocusBadgeText" Text="NO TARGET" FontSize="11" FontWeight="Bold" Foreground="#94A3B8"/>
+                    </Border>
+                    <TextBlock Grid.Column="1" x:Name="TargetDetailsText" VerticalAlignment="Center"
+                               Foreground="#CBD5E1" FontSize="12"
+                               Text="Select a RobloxPlayerBeta.exe window or launch the Controlled Test Target Window."/>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- 3. EXPLICIT BACKGROUND COMPATIBILITY STATUS BANNER -->
+        <Border Grid.Row="2" x:Name="CompatibilityBannerBorder"
+                Background="#1C1917" CornerRadius="8" Padding="12,8" Margin="0,0,0,10"
+                BorderBrush="#F59E0B" BorderThickness="1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock x:Name="CompatibilityHeadlineText"
+                               Text="Background Input Status: Background Input Unsupported in Roblox (Unverified — Using Foreground-Guarded Fallback)"
+                               FontWeight="Bold" FontSize="13" Foreground="#FBBF24"/>
+                    <TextBlock x:Name="CompatibilityDetailText"
+                               TextWrapping="Wrap" FontSize="11.5" Foreground="#D6D3D1" Margin="0,2,0,0"
+                               Text="Win32 PostMessage delivers WM_LBUTTONDOWN/UP to WndProc (returning TRUE), but RobloxPlayerBeta.exe gates gameplay attacks on WindowFocused (WM_ACTIVATE / GetForegroundWindow) and Raw Input. Foreground-Guarded Mode automatically pauses when Roblox loses focus so clicks never hit other apps."/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- 4. MAIN CONFIGURATION & VERIFICATION WORKSPACE -->
+        <TabControl Grid.Row="3" Background="#151C2C" BorderBrush="#2E3C56" BorderThickness="1" Margin="0,0,0,10">
+            <!-- TAB 1: CLICK AUTOMATION & INPUT ENGINE -->
+            <TabItem Header="  1. Attack Clicker &amp; Input Mode  " FontWeight="SemiBold">
+                <Grid Margin="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.05*"/>
+                        <ColumnDefinition Width="14"/>
+                        <ColumnDefinition Width="0.95*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left Column: Input Delivery Mode + Click Timing -->
+                    <StackPanel Grid.Column="0">
+                        <Border Background="#0F172A" CornerRadius="8" Padding="12" BorderBrush="#2E3C56" BorderThickness="1" Margin="0,0,0,10">
+                            <StackPanel>
+                                <TextBlock Text="Input Delivery Mechanism" FontSize="14" FontWeight="Bold" Foreground="#38BDF8" Margin="0,0,0,6"/>
+
+                                <RadioButton x:Name="ModeForegroundGuardedRadio" IsChecked="True"
+                                             Checked="InputMode_Changed"
+                                             FontWeight="SemiBold"
+                                             Content="Foreground-Guarded Mode (SendInput + Automatic Focus Pause) [Recommended]"/>
+                                <TextBlock Text="Uses hardware-queued SendInput only while the selected Roblox window is focused. Immediately pauses (&lt;10ms) and releases held buttons if you Alt+Tab or click another app."
+                                           TextWrapping="Wrap" FontSize="11" Foreground="#94A3B8" Margin="22,0,0,6"/>
+
+                                <StackPanel Margin="22,0,0,8">
+                                    <CheckBox x:Name="AutoResumeCheck" IsChecked="True"
+                                              Content="Automatically resume clicking when target window regains focus"/>
+                                    <CheckBox x:Name="RestoreCursorCheck" IsChecked="False"
+                                              Content="Restore cursor position after each fixed-coordinate foreground click"/>
+                                </StackPanel>
+
+                                <RadioButton x:Name="ModeBackgroundWin32Radio"
+                                             Checked="InputMode_Changed"
+                                             FontWeight="SemiBold"
+                                             Content="Background Win32 Message Mode (PostMessage / SendMessage) [Experimental]"/>
+                                <TextBlock Text="Dispatches WM_MOUSEMOVE + WM_LBUTTONDOWN/UP directly to target HWND without moving the physical cursor or stealing focus. Works on standard Win32 windows; ignored by Roblox when unfocused/minimized."
+                                           TextWrapping="Wrap" FontSize="11" Foreground="#94A3B8" Margin="22,0,0,6"/>
+
+                                <StackPanel Margin="22,0,0,0" Orientation="Horizontal">
+                                    <CheckBox x:Name="BroadcastChildrenCheck" IsChecked="True"
+                                              Content="Broadcast to child HWNDs" Margin="0,0,16,0"/>
+                                    <CheckBox x:Name="UseSendMessageTimeoutCheck" IsChecked="False"
+                                              Content="Use SendMessageTimeoutW"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="#0F172A" CornerRadius="8" Padding="12" BorderBrush="#2E3C56" BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock Text="Attack Action &amp; Timing" FontSize="14" FontWeight="Bold" Foreground="#38BDF8" Margin="0,0,0,8"/>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                    <RadioButton x:Name="ActionRepeatedClickRadio" IsChecked="True"
+                                                 Content="Repeated Left Clicks" Margin="0,0,20,0" FontWeight="SemiBold"/>
+                                    <RadioButton x:Name="ActionClickAndHoldRadio"
+                                                 Content="Click-and-Hold Left Button (Auto-Released on Stop)" FontWeight="SemiBold"/>
+                                </StackPanel>
+
+                                <UniformGrid Columns="3" Margin="0,0,0,8">
+                                    <StackPanel Margin="0,0,8,0">
+                                        <TextBlock Text="Click Interval (ms)" FontSize="11.5" Foreground="#CBD5E1" Margin="0,0,0,3"/>
+                                        <TextBox x:Name="ClickIntervalInput" Text="100"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="4,0,4,0">
+                                        <TextBlock Text="Hold Duration (ms)" FontSize="11.5" Foreground="#CBD5E1" Margin="0,0,0,3"/>
+                                        <TextBox x:Name="ClickHoldInput" Text="35"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="8,0,0,0">
+                                        <TextBlock Text="Start Delay / Countdown (ms)" FontSize="11.5" Foreground="#CBD5E1" Margin="0,0,0,3"/>
+                                        <TextBox x:Name="StartDelayInput" Text="1500"/>
+                                    </StackPanel>
+                                </UniformGrid>
+
+                                <Grid Margin="0,4,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <CheckBox Grid.Column="0" x:Name="EnableClickLimitCheck"
+                                              Content="Stop after total clicks:" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                    <TextBox Grid.Column="1" x:Name="MaxClicksInput" Text="500"/>
+                                    <TextBlock Grid.Column="2" Text="(Leave unchecked for unlimited grinding until stopped)"
+                                               FontSize="11" Foreground="#94A3B8" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Right Column: Client Position & Global Hotkeys -->
+                    <StackPanel Grid.Column="2">
+                        <Border Background="#0F172A" CornerRadius="8" Padding="12" BorderBrush="#2E3C56" BorderThickness="1" Margin="0,0,0,10">
+                            <StackPanel>
+                                <TextBlock Text="Target Click Position (Window Move / Resize / DPI Aware)"
+                                           FontSize="14" FontWeight="Bold" Foreground="#38BDF8" Margin="0,0,0,6"/>
+
+                                <RadioButton x:Name="PosCenterRadio" IsChecked="True"
+                                             Content="Center of Target Client Area (Automatically tracks window resize/move)"/>
+                                <RadioButton x:Name="PosFixedClientRadio"
+                                             Content="Fixed Client-Relative Coordinates (X, Y inside target window)"/>
+                                <RadioButton x:Name="PosCurrentCursorRadio"
+                                             Content="Current Physical Cursor Position (Foreground mode only)"/>
+
+                                <UniformGrid Columns="4" Margin="22,6,0,6">
+                                    <StackPanel Margin="0,0,6,0">
+                                        <TextBlock Text="Client X" FontSize="11" Foreground="#94A3B8"/>
+                                        <TextBox x:Name="ClientXInput" Text="400"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="3,0,3,0">
+                                        <TextBlock Text="Client Y" FontSize="11" Foreground="#94A3B8"/>
+                                        <TextBox x:Name="ClientYInput" Text="300"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="3,0,3,0">
+                                        <TextBlock Text="Ref Width" FontSize="11" Foreground="#94A3B8"/>
+                                        <TextBox x:Name="RefWidthInput" Text="800"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="6,0,0,0">
+                                        <TextBlock Text="Ref Height" FontSize="11" Foreground="#94A3B8"/>
+                                        <TextBox x:Name="RefHeightInput" Text="600"/>
+                                    </StackPanel>
+                                </UniformGrid>
+
+                                <CheckBox x:Name="ScaleOnResizeCheck" IsChecked="True" Margin="22,2,0,6"
+                                          Content="Scale (X, Y) proportionally when target window resizes or changes DPI"/>
+
+                                <Button Content="Capture Cursor Position Inside Target Window (Hotkey: F8)"
+                                        Style="{StaticResource ActionBtn}" Background="#334155" Margin="22,2,0,0"
+                                        Click="PickWindowUnderCursor_Click"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="#0F172A" CornerRadius="8" Padding="12" BorderBrush="#2E3C56" BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock Text="Global Hotkey Configuration"
+                                           FontSize="14" FontWeight="Bold" Foreground="#38BDF8" Margin="0,0,0,8"/>
+
+                                <UniformGrid Columns="3" Margin="0,0,0,8">
+                                    <StackPanel Margin="0,0,6,0">
+                                        <TextBlock Text="Start / Stop Toggle" FontSize="11" Foreground="#CBD5E1" Margin="0,0,0,3"/>
+                                        <ComboBox x:Name="StartStopHotkeyCombo" Height="28"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="3,0,3,0">
+                                        <TextBlock Text="Emergency Stop" FontSize="11" Foreground="#CBD5E1" Margin="0,0,0,3"/>
+                                        <ComboBox x:Name="EmergencyStopHotkeyCombo" Height="28"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="6,0,0,0">
+                                        <TextBlock Text="Pick Window/Pos" FontSize="11" Foreground="#CBD5E1" Margin="0,0,0,3"/>
+                                        <ComboBox x:Name="PickPosHotkeyCombo" Height="28"/>
+                                    </StackPanel>
+                                </UniformGrid>
+
+                                <Button Content="Apply Global Hotkeys" Style="{StaticResource ActionBtn}"
+                                        Background="#334155" Click="ApplyHotkeys_Click"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- TAB 2: MACRO RECORDER & PLAYBACK -->
+            <TabItem Header="  2. Macro Recorder &amp; Profiles  " FontWeight="SemiBold">
+                <Grid Margin="12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Background="#0F172A" CornerRadius="8" Padding="10" BorderBrush="#2E3C56" BorderThickness="1" Margin="0,0,0,8">
+                        <WrapPanel VerticalAlignment="Center">
+                            <Button x:Name="RecordMacroBtn" Content="● Record Macro" Style="{StaticResource ActionBtn}"
+                                    Background="#DC2626" Margin="0,0,8,0" Click="RecordMacro_Click"/>
+                            <Button x:Name="StopRecordMacroBtn" Content="■ Stop Recording" Style="{StaticResource ActionBtn}"
+                                    Background="#475569" Margin="0,0,8,0" IsEnabled="False" Click="StopRecordMacro_Click"/>
+                            <Button x:Name="PlayMacroBtn" Content="▶ Play Macro Sequence" Style="{StaticResource ActionBtn}"
+                                    Background="#059669" Margin="0,0,12,0" Click="PlayMacro_Click"/>
+
+                            <CheckBox x:Name="MacroCaptureKeyboardCheck" IsChecked="True"
+                                      Content="Capture Keyboard" Margin="0,0,12,0"/>
+                            <CheckBox x:Name="MacroLoopInfiniteCheck" IsChecked="True"
+                                      Content="Infinite Loop" Margin="0,0,8,0"/>
+                            <TextBlock Text="Loops:" VerticalAlignment="Center" Margin="0,0,4,0" Foreground="#CBD5E1"/>
+                            <TextBox x:Name="MacroLoopCountInput" Text="1" Width="48" Margin="0,0,12,0"/>
+
+                            <Button Content="Save JSON..." Style="{StaticResource ActionBtn}"
+                                    Background="#2563EB" Margin="0,0,6,0" Click="SaveMacroProfile_Click"/>
+                            <Button Content="Load JSON..." Style="{StaticResource ActionBtn}"
+                                    Background="#334155" Margin="0,0,6,0" Click="LoadMacroProfile_Click"/>
+                            <Button Content="Clear" Style="{StaticResource ActionBtn}"
+                                    Background="#334155" Click="ClearMacroEvents_Click"/>
+                        </WrapPanel>
+                    </Border>
+
+                    <Border Grid.Row="1" Background="#0F172A" CornerRadius="8" Padding="10,7" BorderBrush="#2E3C56" BorderThickness="1" Margin="0,0,0,8">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Quick Insert:" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#38BDF8" Margin="0,0,10,0"/>
+                            <Button Content="+ Insert Left Click @ Fixed/Center XY" Style="{StaticResource ActionBtn}"
+                                    Background="#1E293B" Padding="10,4" Margin="0,0,8,0"
+                                    Click="InsertManualClickEvent_Click"/>
+                            <Button Content="+ Insert Spacebar Tap (Jump / Anti-AFK)" Style="{StaticResource ActionBtn}"
+                                    Background="#1E293B" Padding="10,4"
+                                    Click="InsertManualSpaceKey_Click"/>
+                        </StackPanel>
+                    </Border>
+
+                    <DataGrid Grid.Row="2" x:Name="MacroEventsGrid"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              Background="#0F172A"
+                              RowBackground="#151C2C"
+                              AlternatingRowBackground="#1E293B"
+                              Foreground="#F8FAFC"
+                              BorderBrush="#2E3C56"
+                              GridLinesVisibility="Horizontal"
+                              HorizontalGridLinesBrush="#2E3C56"
+                              HeadersVisibility="Column">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="50"/>
+                            <DataGridTextColumn Header="Event Type" Binding="{Binding EventType}" Width="140"/>
+                            <DataGridTextColumn Header="Client X" Binding="{Binding ClientX}" Width="80"/>
+                            <DataGridTextColumn Header="Client Y" Binding="{Binding ClientY}" Width="80"/>
+                            <DataGridTextColumn Header="Wait Before (ms)" Binding="{Binding DelayBeforeMs}" Width="115"/>
+                            <DataGridTextColumn Header="Hold Duration (ms)" Binding="{Binding HoldDurationMs}" Width="120"/>
+                            <DataGridTextColumn Header="Key" Binding="{Binding KeyName}" Width="90"/>
+                            <DataGridTextColumn Header="Summary" Binding="{Binding Description}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <!-- TAB 3: 3-SCENARIO BACKGROUND VERIFICATION LAB -->
+            <TabItem Header="  3. 3-Scenario Background Verification Lab  " FontWeight="SemiBold">
+                <Grid Margin="12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Background="#0F172A" CornerRadius="8" Padding="12" BorderBrush="#2E3C56" BorderThickness="1" Margin="0,0,0,10">
+                        <StackPanel>
+                            <TextBlock Text="Programmatic Win32 Delivery vs. Manual In-Game Observation Protocol"
+                                       FontSize="14" FontWeight="Bold" Foreground="#38BDF8"/>
+                            <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="#CBD5E1" Margin="0,4,0,0"
+                                       Text="Because PostMessage(WM_LBUTTONDOWN) returns TRUE whenever a message is queued to a valid HWND, an honest tool must never assume a TRUE return value means Roblox registered an attack. Use the 3 scenario tests below to verify Win32 delivery programmatically and record whether your character actually attacked inside Roblox."/>
+                        </StackPanel>
+                    </Border>
+
+                    <UniformGrid Grid.Row="1" Columns="3">
+                        <!-- Scenario 1 Card -->
+                        <Border Background="#0F172A" CornerRadius="8" Padding="12" Margin="0,0,6,0" BorderBrush="#2E3C56" BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock Text="SCENARIO 1: Focused &amp; Visible" FontWeight="Bold" FontSize="13.5" Foreground="#38BDF8"/>
+                                <TextBlock TextWrapping="Wrap" FontSize="11.5" Foreground="#94A3B8" Margin="0,4,0,10"
+                                           Text="1. Click test button below.&#x0a;2. Immediately focus the target window within 3 seconds.&#x0a;3. Observe whether 10 background PostMessage clicks trigger attacks."/>
+                                <Button Content="Run Scenario 1 Burst (3s Delay)" Style="{StaticResource ActionBtn}"
+                                        Background="#2563EB" Margin="0,0,0,8" Click="RunScenario1Test_Click"/>
+                                <TextBlock x:Name="Scenario1StatusText" Text="Status: Not yet tested"
+                                           TextWrapping="Wrap" FontSize="11.5" Foreground="#F8FAFC" Margin="0,0,0,10"/>
+                                <TextBlock Text="Manual In-Game Observation:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                <UniformGrid Columns="2">
+                                    <Button Content="✓ Attack Observed" Style="{StaticResource ActionBtn}"
+                                            Background="#059669" Margin="0,0,4,0" Padding="6,5" FontSize="11"
+                                            Click="ConfirmScenario1Working_Click"/>
+                                    <Button Content="✕ Ignored in Game" Style="{StaticResource ActionBtn}"
+                                            Background="#B91C1C" Margin="4,0,0,0" Padding="6,5" FontSize="11"
+                                            Click="ConfirmScenario1Ignored_Click"/>
+                                </UniformGrid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Scenario 2 Card -->
+                        <Border Background="#0F172A" CornerRadius="8" Padding="12" Margin="3,0,3,0" BorderBrush="#2E3C56" BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock Text="SCENARIO 2: Visible, Unfocused" FontWeight="Bold" FontSize="13.5" Foreground="#F59E0B"/>
+                                <TextBlock TextWrapping="Wrap" FontSize="11.5" Foreground="#94A3B8" Margin="0,4,0,10"
+                                           Text="1. Keep target visible on screen, but keep THIS window focused.&#x0a;2. Click test button below.&#x0a;3. Observe whether target registers 10 clicks while unfocused."/>
+                                <Button Content="Run Scenario 2 Burst (Immediate)" Style="{StaticResource ActionBtn}"
+                                        Background="#D97706" Margin="0,0,0,8" Click="RunScenario2Test_Click"/>
+                                <TextBlock x:Name="Scenario2StatusText" Text="Status: Not yet tested"
+                                           TextWrapping="Wrap" FontSize="11.5" Foreground="#F8FAFC" Margin="0,0,0,10"/>
+                                <TextBlock Text="Manual In-Game Observation:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                <UniformGrid Columns="2">
+                                    <Button Content="✓ Attack Observed" Style="{StaticResource ActionBtn}"
+                                            Background="#059669" Margin="0,0,4,0" Padding="6,5" FontSize="11"
+                                            Click="ConfirmScenario2Working_Click"/>
+                                    <Button Content="✕ Ignored in Game" Style="{StaticResource ActionBtn}"
+                                            Background="#B91C1C" Margin="4,0,0,0" Padding="6,5" FontSize="11"
+                                            Click="ConfirmScenario2Ignored_Click"/>
+                                </UniformGrid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Scenario 3 Card -->
+                        <Border Background="#0F172A" CornerRadius="8" Padding="12" Margin="6,0,0,0" BorderBrush="#2E3C56" BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock Text="SCENARIO 3: Target Minimized" FontWeight="Bold" FontSize="13.5" Foreground="#F43F5E"/>
+                                <TextBlock TextWrapping="Wrap" FontSize="11.5" Foreground="#94A3B8" Margin="0,4,0,10"
+                                           Text="1. Minimize the target window to the taskbar.&#x0a;2. Click test button below.&#x0a;3. Restore target window and check if hit/click counter increased."/>
+                                <Button Content="Run Scenario 3 Burst (Immediate)" Style="{StaticResource ActionBtn}"
+                                        Background="#E11D48" Margin="0,0,0,8" Click="RunScenario3Test_Click"/>
+                                <TextBlock x:Name="Scenario3StatusText" Text="Status: Not yet tested"
+                                           TextWrapping="Wrap" FontSize="11.5" Foreground="#F8FAFC" Margin="0,0,0,10"/>
+                                <TextBlock Text="Manual In-Game Observation:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                <UniformGrid Columns="2">
+                                    <Button Content="✓ Attack Observed" Style="{StaticResource ActionBtn}"
+                                            Background="#059669" Margin="0,0,4,0" Padding="6,5" FontSize="11"
+                                            Click="ConfirmScenario3Working_Click"/>
+                                    <Button Content="✕ Ignored in Game" Style="{StaticResource ActionBtn}"
+                                            Background="#B91C1C" Margin="4,0,0,0" Padding="6,5" FontSize="11"
+                                            Click="ConfirmScenario3Ignored_Click"/>
+                                </UniformGrid>
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <!-- 5. PRIMARY START / EMERGENCY STOP BAR -->
+        <Grid Grid.Row="4" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0" x:Name="StartAutomationBtn"
+                    Content="▶ START ATTACK AUTOMATION (F6)"
+                    Style="{StaticResource ActionBtn}"
+                    Background="#059669" Height="42" FontSize="14"
+                    Click="StartAutomation_Click"/>
+
+            <Button Grid.Column="2" x:Name="StopAutomationBtn"
+                    Content="■ EMERGENCY STOP &amp; RELEASE INPUTS (F7)"
+                    Style="{StaticResource ActionBtn}"
+                    Background="#DC2626" Height="42" FontSize="14"
+                    Click="StopAutomation_Click"/>
+        </Grid>
+
+        <!-- 6. DIAGNOSTIC & EVENT LOG PANEL -->
+        <Border Grid.Row="5" Background="#090D16" CornerRadius="8" Padding="10"
+                BorderBrush="#2E3C56" BorderThickness="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <DockPanel Grid.Row="0" Margin="0,0,0,4">
+                    <TextBlock Text="REAL-TIME ENGINE &amp; SAFETY LOGS"
+                               FontSize="11" FontWeight="Bold" Foreground="#94A3B8" VerticalAlignment="Center"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Copy Logs" Padding="8,2" Margin="0,0,6,0"
+                                Background="#1E293B" Foreground="#CBD5E1" BorderThickness="0"
+                                Click="CopyLogs_Click"/>
+                        <Button Content="Clear" Padding="8,2"
+                                Background="#1E293B" Foreground="#CBD5E1" BorderThickness="0"
+                                Click="ClearLogs_Click"/>
+                    </StackPanel>
+                </DockPanel>
+                <TextBox Grid.Row="1" x:Name="LogOutputBox"
+                         IsReadOnly="True"
+                         VerticalScrollBarVisibility="Auto"
+                         HorizontalScrollBarVisibility="Auto"
+                         FontFamily="Consolas"
+                         FontSize="11.5"
+                         Background="#050811"
+                         Foreground="#E2E8F0"
+                         BorderThickness="0"
+                         TextWrapping="NoWrap"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

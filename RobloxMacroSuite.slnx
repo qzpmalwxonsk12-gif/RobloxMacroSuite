@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/RobloxMacro.App/RobloxMacro.App.csproj" />
+    <Project Path="src/RobloxMacro.Core/RobloxMacro.Core.csproj" />
+    <Project Path="src/RobloxMacro.PoC/RobloxMacro.PoC.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/RobloxMacro.Tests/RobloxMacro.Tests.csproj" />
+  </Folder>
+</Solution>
